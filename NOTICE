@@ -1,0 +1,13 @@
+Hunyuan GLB Generator for Codex
+
+This repository contains a Codex plugin, skill, MCP server, installer, examples,
+and helper scripts for automating a user's local Hunyuan3D installation.
+
+This repository does not include Hunyuan3D, Hunyuan3D model weights, Tencent
+source code, Tencent model files, or Tencent trademarks.
+
+Users must install Hunyuan3D separately and are responsible for complying with
+the Hunyuan3D license and acceptable-use terms that apply to their own use.
+
+Hunyuan3D is developed by Tencent. Tencent is not affiliated with, associated
+with, sponsoring, or endorsing this plugin.

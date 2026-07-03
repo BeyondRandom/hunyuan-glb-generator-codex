@@ -1,0 +1,30 @@
+{
+  "output_dir": "examples\\output",
+  "options": {
+    "version": "2.0",
+    "texture": false,
+    "seed": 1234,
+    "octree_resolution": 64,
+    "num_inference_steps": 3,
+    "guidance_scale": 4.0,
+    "face_count": 8000,
+    "continue_on_error": true
+  },
+  "items": [
+    {
+      "image_path": "examples\\reference_images\\corn_crop_tile.png",
+      "asset_name": "corn_crop_tile",
+      "prompt": "Low-poly game-ready corn crop tile"
+    },
+    {
+      "image_path": "examples\\reference_images\\builder_ev_cart.png",
+      "asset_name": "builder_ev_cart",
+      "prompt": "Low-poly electric builder cart"
+    },
+    {
+      "image_path": "examples\\reference_images\\water_bucket_carry_item.png",
+      "asset_name": "water_bucket_carry_item",
+      "prompt": "Low-poly water bucket carry item"
+    }
+  ]
+}

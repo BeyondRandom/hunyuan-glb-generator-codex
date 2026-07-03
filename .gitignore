@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+config.local.json
+plugins/hunyuan-glb-generator/config.local.json
+plugins/hunyuan-glb-generator/examples/output/
+*.glb
+*.hy3d.json
+.DS_Store

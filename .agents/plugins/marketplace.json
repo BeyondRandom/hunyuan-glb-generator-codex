@@ -1,0 +1,20 @@
+{
+  "name": "hunyuan-glb-generator-marketplace",
+  "interface": {
+    "displayName": "Hunyuan GLB Generator"
+  },
+  "plugins": [
+    {
+      "name": "hunyuan-glb-generator",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hunyuan-glb-generator"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

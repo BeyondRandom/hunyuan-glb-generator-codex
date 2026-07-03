@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "hunyuan-glb-generator": {
+      "command": "python",
+      "args": [
+        "scripts/hunyuan_mcp_server.py"
+      ],
+      "env": {
+        "HUNYUAN_GLB_PLUGIN_ROOT": "."
+      },
+      "startup_timeout_sec": 30
+    }
+  }
+}

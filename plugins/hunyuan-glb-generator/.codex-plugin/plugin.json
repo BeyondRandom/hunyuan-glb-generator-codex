@@ -1,0 +1,35 @@
+{
+  "name": "hunyuan-glb-generator",
+  "version": "0.3.0",
+  "description": "Automate local Hunyuan3D image-to-GLB and batch GLB asset generation for Codex.",
+  "author": {
+    "name": "Hunyuan GLB Generator contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "hunyuan3d",
+    "glb",
+    "3d-assets",
+    "mcp",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Hunyuan GLB Generator",
+    "shortDescription": "Generate GLB assets through a local Hunyuan3D install.",
+    "longDescription": "Adds Codex instructions and local MCP tools for starting a configured Hunyuan3D portable API, sending image-to-3D requests, queueing batch jobs, tracking progress, and saving generated GLB assets into project folders.",
+    "developerName": "Hunyuan GLB Generator contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Generate a GLB from this reference image.",
+      "Queue a batch of GLB assets.",
+      "Check Hunyuan3D batch status."
+    ]
+  }
+}
