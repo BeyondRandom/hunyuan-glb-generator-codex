@@ -8,7 +8,7 @@ This repository is a Codex plugin marketplace. It packages one plugin, `hunyuan-
 - an MCP server that exposes generation tools to Codex
 - scripts for starting/stopping the local Hunyuan3D API
 - background batch generation with status polling
-- low-poly example manifests and reference images
+- low-poly and textured low-poly example manifests and reference images
 
 <p align="center">
   <img src="docs/assets/hunyuan-glb-generator-hero.png" alt="Batch image-to-GLB generation through a local Hunyuan workstation" width="100%">
@@ -87,6 +87,7 @@ The plugin includes sample reference images and batch manifests:
 
 - `plugins/hunyuan-glb-generator/examples/reference_images/`
 - `plugins/hunyuan-glb-generator/examples/batch_manifest.low-poly.json`
+- `plugins/hunyuan-glb-generator/examples/batch_manifest.textured-low-poly.json`
 - `plugins/hunyuan-glb-generator/examples/batch_manifest.example.json`
 
 Known-good sample inputs:
@@ -100,6 +101,12 @@ Run the low-poly example from the plugin folder:
 ```powershell
 cd .\plugins\hunyuan-glb-generator
 python .\scripts\hy3d_asset_controller.py enqueue --manifest .\examples\batch_manifest.low-poly.json
+```
+
+Run the colored/textured low-poly example:
+
+```powershell
+python .\scripts\hy3d_asset_controller.py enqueue --manifest .\examples\batch_manifest.textured-low-poly.json
 ```
 
 See [Batch Workflows](docs/BATCH_WORKFLOWS.md) for reference-image guidance and batch prompts.

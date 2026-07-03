@@ -1,0 +1,26 @@
+{
+  "output_dir": "examples\\output-textured",
+  "options": {
+    "version": "2.0",
+    "texture": true,
+    "reset": true,
+    "seed": 1234,
+    "octree_resolution": 64,
+    "num_inference_steps": 5,
+    "guidance_scale": 4.5,
+    "face_count": 8000,
+    "continue_on_error": true
+  },
+  "items": [
+    {
+      "image_path": "examples\\reference_images\\corn_crop_tile.png",
+      "asset_name": "corn_crop_tile",
+      "prompt": "Compact low-poly game-ready corn crop tile with baked colorful texture/materials, clear silhouette, simple geometry, and small GLB size."
+    },
+    {
+      "image_path": "examples\\reference_images\\water_bucket_carry_item.png",
+      "asset_name": "water_bucket_carry_item",
+      "prompt": "Compact low-poly water bucket carry item with baked colorful texture/materials, clear silhouette, simple geometry, and small GLB size."
+    }
+  ]
+}

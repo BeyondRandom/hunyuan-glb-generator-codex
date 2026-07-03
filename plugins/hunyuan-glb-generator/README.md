@@ -57,7 +57,9 @@ These commands work without MCP:
 ```powershell
 python .\scripts\hy3d_asset_controller.py status
 python .\scripts\hy3d_asset_controller.py start --version 2.0
+python .\scripts\hy3d_asset_controller.py start --version 2.0 --texture --reset
 python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name"
+python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name" --texture --reset
 python .\scripts\hy3d_asset_controller.py enqueue --manifest "C:\path\batch.json"
 python .\scripts\hy3d_asset_controller.py batch-status --job-id "hy3d-..."
 ```
@@ -74,16 +76,32 @@ Start with:
 
 Raise those settings only when the model is too weak.
 
+For colored/textured low-poly GLBs, use `texture: true` and `reset: true` in the manifest, or add `--texture --reset` to CLI calls when changing an existing API from untextured mode. A good compact starting point is:
+
+- `texture: true`
+- `reset: true`
+- `octree_resolution: 64`
+- `num_inference_steps: 5`
+- `guidance_scale: 4.5`
+- `face_count: 8000`
+
 ## Examples
 
 - `examples/reference_images/` contains simple sample inputs.
 - `examples/batch_manifest.low-poly.json` runs a tiny low-poly batch.
+- `examples/batch_manifest.textured-low-poly.json` runs the same sample with texture generation enabled.
 - `examples/batch_manifest.example.json` is a template for real project batches.
 
 Run from this plugin folder:
 
 ```powershell
 python .\scripts\hy3d_asset_controller.py enqueue --manifest .\examples\batch_manifest.low-poly.json
+```
+
+Textured sample:
+
+```powershell
+python .\scripts\hy3d_asset_controller.py enqueue --manifest .\examples\batch_manifest.textured-low-poly.json
 ```
 
 ## Safety Notes
