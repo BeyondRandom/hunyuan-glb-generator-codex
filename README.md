@@ -10,6 +10,10 @@ This repository is a Codex plugin marketplace. It packages one plugin, `hunyuan-
 - background batch generation with status polling
 - low-poly example manifests and reference images
 
+<p align="center">
+  <img src="docs/assets/batch-workflow.png" alt="Batch workflow: reference images to manifest, local Hunyuan API, GLB files, and Codex report" width="100%">
+</p>
+
 ## Why This Is Useful
 
 Hunyuan3D can turn images into 3D models, but managing the local server, settings, output files, and repeated batches is tedious. This plugin lets Codex handle that loop:
@@ -84,6 +88,12 @@ The plugin includes sample reference images and batch manifests:
 - `plugins/hunyuan-glb-generator/examples/reference_images/`
 - `plugins/hunyuan-glb-generator/examples/batch_manifest.low-poly.json`
 - `plugins/hunyuan-glb-generator/examples/batch_manifest.example.json`
+
+Known-good sample inputs:
+
+| Corn crop tile | Water bucket carry item |
+| --- | --- |
+| <img src="plugins/hunyuan-glb-generator/examples/reference_images/corn_crop_tile.png" alt="Corn crop tile reference image" width="220"> | <img src="plugins/hunyuan-glb-generator/examples/reference_images/water_bucket_carry_item.png" alt="Water bucket carry item reference image" width="220"> |
 
 Run the low-poly example from the plugin folder:
 
