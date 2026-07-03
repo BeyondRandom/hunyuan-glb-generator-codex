@@ -7,7 +7,6 @@ This folder contains a tiny low-poly batch for testing the plugin after install.
 `reference_images/` contains three simple example inputs:
 
 - `corn_crop_tile.png`
-- `builder_ev_cart.png`
 - `water_bucket_carry_item.png`
 
 They are intentionally simple: one centered object, bright background, strong silhouette, no labels, no clutter.

@@ -17,11 +17,6 @@
       "prompt": "Low-poly game-ready corn crop tile"
     },
     {
-      "image_path": "examples\\reference_images\\builder_ev_cart.png",
-      "asset_name": "builder_ev_cart",
-      "prompt": "Low-poly electric builder cart"
-    },
-    {
       "image_path": "examples\\reference_images\\water_bucket_carry_item.png",
       "asset_name": "water_bucket_carry_item",
       "prompt": "Low-poly water bucket carry item"
