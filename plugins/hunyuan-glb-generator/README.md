@@ -84,6 +84,10 @@ For colored/textured low-poly GLBs, use `texture: true` and `reset: true` in the
 - `num_inference_steps: 5`
 - `guidance_scale: 4.5`
 - `face_count: 8000`
+- `request_timeout_sec: 900`
+- `stop_api_on_item_error: true`
+
+Texture generation can take longer than shape-only generation. `request_timeout_sec` keeps a stuck API request from blocking the whole queue forever, and `stop_api_on_item_error` restarts the local API before the next queued asset.
 
 ## Examples
 

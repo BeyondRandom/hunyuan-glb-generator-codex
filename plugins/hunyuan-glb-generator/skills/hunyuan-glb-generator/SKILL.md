@@ -52,7 +52,9 @@ Use this shape for queued generation:
     "num_inference_steps": 3,
     "guidance_scale": 4.0,
     "face_count": 8000,
-    "continue_on_error": true
+    "request_timeout_sec": 3600,
+    "continue_on_error": true,
+    "stop_api_on_item_error": true
   },
   "items": [
     {
@@ -66,7 +68,7 @@ Use this shape for queued generation:
 
 For smallest game-ready GLBs, start with `texture: false`, `octree_resolution: 64`, `num_inference_steps: 3`, `guidance_scale: 4.0`, and `face_count: 8000`. Increase only when the output is too weak.
 
-For colored/textured low-poly GLBs, use `texture: true`, `reset: true`, `octree_resolution: 64`, `num_inference_steps: 5`, `guidance_scale: 4.5`, and `face_count: 8000`. Keep output in a separate review folder until the user approves swapping it into a game.
+For colored/textured low-poly GLBs, use `texture: true`, `reset: true`, `octree_resolution: 64`, `num_inference_steps: 5`, `guidance_scale: 4.5`, `face_count: 8000`, `request_timeout_sec: 900`, and `stop_api_on_item_error: true`. Keep output in a separate review folder until the user approves swapping it into a game.
 
 ## MCP Tools
 

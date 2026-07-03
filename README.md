@@ -26,6 +26,7 @@ Hunyuan3D can turn images into 3D models, but managing the local server, setting
 6. report results, errors, and file sizes
 
 The Hunyuan/Gradio frontend does not need to be open. The plugin uses the backend API.
+Textured batches can set `request_timeout_sec` and `stop_api_on_item_error` so one stalled texture request does not freeze the entire queue.
 
 ## Requirements
 

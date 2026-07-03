@@ -9,7 +9,9 @@
     "num_inference_steps": 5,
     "guidance_scale": 4.5,
     "face_count": 8000,
-    "continue_on_error": true
+    "request_timeout_sec": 900,
+    "continue_on_error": true,
+    "stop_api_on_item_error": true
   },
   "items": [
     {

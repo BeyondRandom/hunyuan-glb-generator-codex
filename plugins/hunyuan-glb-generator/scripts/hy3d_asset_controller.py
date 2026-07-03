@@ -57,6 +57,16 @@ def configured_text(env_name: str, config_key: str, default: str | None = None) 
     return default
 
 
+def configured_int(env_name: str, config_key: str, default: int) -> int:
+    value = os.environ.get(env_name)
+    if value is None:
+        value = LOCAL_CONFIG.get(config_key)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def discover_hunyuan_root() -> str | None:
     configured = configured_text("HY3D_PORTABLE_ROOT", "hunyuan_root")
     if configured:
@@ -75,7 +85,7 @@ JOBS_DIR = STATE_DIR / "jobs"
 DEFAULT_HOST = str(LOCAL_CONFIG.get("host") or "127.0.0.1")
 DEFAULT_PORT = int(LOCAL_CONFIG.get("port") or 8081)
 READY_TIMEOUT_SEC = 900
-REQUEST_TIMEOUT_SEC = 3600
+REQUEST_TIMEOUT_SEC = configured_int("HUNYUAN_GLB_REQUEST_TIMEOUT_SEC", "request_timeout_sec", 3600)
 
 
 class ControllerError(RuntimeError):
@@ -438,7 +448,8 @@ def start_api(
     return current_status(host, port)
 
 
-def post_generate(host: str, port: int, payload: dict[str, Any]) -> bytes:
+def post_generate(host: str, port: int, payload: dict[str, Any], timeout_sec: int = REQUEST_TIMEOUT_SEC) -> bytes:
+    timeout_sec = max(1, int(timeout_sec))
     data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
         f"{base_url(host, port)}/generate",
@@ -447,13 +458,19 @@ def post_generate(host: str, port: int, payload: dict[str, Any]) -> bytes:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SEC) as response:
+        with urllib.request.urlopen(request, timeout=timeout_sec) as response:
             return response.read()
     except urllib.error.HTTPError as error:
         body = error.read().decode("utf-8", errors="replace")
         raise ControllerError(f"Hunyuan API returned HTTP {error.code}: {body}") from error
+    except (TimeoutError, socket.timeout) as error:
+        raise ControllerError(f"Hunyuan API timed out after {timeout_sec}s waiting for GLB output.") from error
     except urllib.error.URLError as error:
+        if isinstance(error.reason, (TimeoutError, socket.timeout)):
+            raise ControllerError(f"Hunyuan API timed out after {timeout_sec}s waiting for GLB output.") from error
         raise ControllerError(f"Could not reach Hunyuan API: {error}") from error
+    except OSError as error:
+        raise ControllerError(f"Hunyuan API connection failed while waiting for GLB output: {error}") from error
 
 
 def generate_from_image(
@@ -470,6 +487,7 @@ def generate_from_image(
     host: str = DEFAULT_HOST,
     port: int = DEFAULT_PORT,
     reset: bool = False,
+    request_timeout_sec: int = REQUEST_TIMEOUT_SEC,
 ) -> dict[str, Any]:
     image = image.expanduser().resolve()
     if not image.exists():
@@ -493,7 +511,7 @@ def generate_from_image(
         "face_count": face_count,
         "type": "glb",
     }
-    body = post_generate(host, port, payload)
+    body = post_generate(host, port, payload, timeout_sec=request_timeout_sec)
     if body.lstrip().startswith(b"{"):
         raise ControllerError(f"Hunyuan API returned JSON instead of GLB: {body[:500].decode('utf-8', errors='replace')}")
     output_path.write_bytes(body)
@@ -509,6 +527,7 @@ def generate_from_image(
             "num_inference_steps": num_inference_steps,
             "guidance_scale": guidance_scale,
             "face_count": face_count,
+            "request_timeout_sec": request_timeout_sec,
             "api": base_url(host, port),
         },
     }
@@ -553,6 +572,8 @@ def enqueue_batch(
     port: int = DEFAULT_PORT,
     reset: bool = False,
     continue_on_error: bool = True,
+    request_timeout_sec: int = REQUEST_TIMEOUT_SEC,
+    stop_api_on_item_error: bool = True,
 ) -> dict[str, Any]:
     ensure_state_dir()
     JOBS_DIR.mkdir(parents=True, exist_ok=True)
@@ -582,6 +603,8 @@ def enqueue_batch(
             "port": port,
             "reset": reset,
             "continue_on_error": continue_on_error,
+            "request_timeout_sec": request_timeout_sec,
+            "stop_api_on_item_error": stop_api_on_item_error,
         },
         "totals": {"queued": len(normalized_items), "running": 0, "completed": 0, "failed": 0},
         "items": normalized_items,
@@ -661,6 +684,7 @@ def run_batch_job(job_id: str) -> dict[str, Any]:
                 host=str(options.get("host", DEFAULT_HOST)),
                 port=int(options.get("port", DEFAULT_PORT)),
                 reset=bool(options.get("reset", False)) and item.get("index") == 1,
+                request_timeout_sec=int(options.get("request_timeout_sec", REQUEST_TIMEOUT_SEC)),
             )
             item["status"] = "completed"
             item["finished_at"] = now_iso()
@@ -669,6 +693,14 @@ def run_batch_job(job_id: str) -> dict[str, Any]:
             item["status"] = "failed"
             item["finished_at"] = now_iso()
             item["error"] = str(error)
+            if bool(options.get("stop_api_on_item_error", True)):
+                try:
+                    item["recovery"] = {
+                        "action": "stop_api_after_item_error",
+                        "result": stop_hunyuan_processes(),
+                    }
+                except Exception as recovery_error:
+                    item["recovery_error"] = str(recovery_error)
             if not bool(options.get("continue_on_error", True)):
                 recompute_totals(payload)
                 payload["status"] = "failed"
@@ -752,6 +784,7 @@ def main(argv: list[str] | None = None) -> int:
     gen_parser.add_argument("--num-inference-steps", type=int, default=5)
     gen_parser.add_argument("--guidance-scale", type=float, default=5.0)
     gen_parser.add_argument("--face-count", type=int, default=40000)
+    gen_parser.add_argument("--request-timeout-sec", type=int, default=REQUEST_TIMEOUT_SEC)
 
     enqueue_parser = sub.add_parser("enqueue", help="Start a background batch from a JSON manifest.")
     add_common_server_args(enqueue_parser)
@@ -762,7 +795,9 @@ def main(argv: list[str] | None = None) -> int:
     enqueue_parser.add_argument("--num-inference-steps", type=int, default=5)
     enqueue_parser.add_argument("--guidance-scale", type=float, default=5.0)
     enqueue_parser.add_argument("--face-count", type=int, default=40000)
+    enqueue_parser.add_argument("--request-timeout-sec", type=int, default=REQUEST_TIMEOUT_SEC)
     enqueue_parser.add_argument("--stop-on-error", action="store_true")
+    enqueue_parser.add_argument("--keep-api-on-error", action="store_true")
 
     batch_status_parser = sub.add_parser("batch-status", help="Show one batch job or recent batch jobs.")
     batch_status_parser.add_argument("--job-id")
@@ -800,6 +835,7 @@ def main(argv: list[str] | None = None) -> int:
                 host=args.host,
                 port=args.port,
                 reset=args.reset,
+                request_timeout_sec=args.request_timeout_sec,
             )
         elif args.command == "enqueue":
             manifest = load_batch_manifest(args.manifest)
@@ -818,6 +854,9 @@ def main(argv: list[str] | None = None) -> int:
                 port=int(manifest_options.get("port", args.port)),
                 reset=bool(manifest_options.get("reset", args.reset)),
                 continue_on_error=not args.stop_on_error and bool(manifest_options.get("continue_on_error", True)),
+                request_timeout_sec=int(manifest_options.get("request_timeout_sec", args.request_timeout_sec)),
+                stop_api_on_item_error=not args.keep_api_on_error
+                and bool(manifest_options.get("stop_api_on_item_error", True)),
             )
         elif args.command == "batch-status":
             result = batch_status(args.job_id)
