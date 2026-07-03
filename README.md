@@ -11,7 +11,7 @@ This repository is a Codex plugin marketplace. It packages one plugin, `hunyuan-
 - low-poly example manifests and reference images
 
 <p align="center">
-  <img src="docs/assets/batch-workflow.png" alt="Batch workflow: reference images to manifest, local Hunyuan API, GLB files, and Codex report" width="100%">
+  <img src="docs/assets/hunyuan-glb-generator-hero.png" alt="Batch image-to-GLB generation through a local Hunyuan workstation" width="100%">
 </p>
 
 ## Why This Is Useful
