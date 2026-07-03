@@ -32,10 +32,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 `
 After this repository is published, users can clone and start the GUI installer in one terminal command:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "git clone https://github.com/OWNER/REPO.git; Set-Location REPO; .\install.ps1 -Gui"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "git clone https://github.com/BeyondRandom/hunyuan-glb-generator-codex.git; Set-Location hunyuan-glb-generator-codex; .\install.ps1 -Gui"
 ```
-
-Replace `OWNER/REPO` and `REPO` with the published GitHub repository.
 
 ## Manual Install
 

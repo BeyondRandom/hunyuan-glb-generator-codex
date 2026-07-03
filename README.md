@@ -61,10 +61,8 @@ Use Hunyuan GLB Generator to generate a low-poly GLB from C:\path\to\reference.p
 After this repository is published, users can run:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "git clone https://github.com/OWNER/REPO.git; Set-Location REPO; .\install.ps1 -Gui"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "git clone https://github.com/BeyondRandom/hunyuan-glb-generator-codex.git; Set-Location hunyuan-glb-generator-codex; .\install.ps1 -Gui"
 ```
-
-Replace `OWNER/REPO` and `REPO` with the published GitHub repository.
 
 ## What Codex Gets
 

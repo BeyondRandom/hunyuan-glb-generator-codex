@@ -45,7 +45,7 @@ This project should be published as a Codex plugin marketplace repository.
 Once published:
 
 ```powershell
-codex plugin marketplace add OWNER/REPO
+codex plugin marketplace add BeyondRandom/hunyuan-glb-generator-codex
 codex plugin add hunyuan-glb-generator@hunyuan-glb-generator-marketplace
 ```
 
