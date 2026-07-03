@@ -114,16 +114,21 @@ if ($LASTEXITCODE -ne 0) {
 if (-not $SkipCodexInstall) {
   $codex = Get-CodexCommand
   if ($codex) {
+    $marketplaceReady = $true
     Write-Host "Registering local Codex marketplace..."
     & $codex "plugin" "marketplace" "add" $repoRoot
     if ($LASTEXITCODE -ne 0) {
-      Write-Warning "Marketplace registration returned a non-zero exit code. It may already be registered."
+      $marketplaceReady = $false
+      Write-Warning "Marketplace registration returned a non-zero exit code. It may already be registered from another clone."
+      Write-Warning "Skipping plugin install to avoid installing from a stale marketplace source. Remove the old marketplace or rerun from the registered clone."
     }
 
-    Write-Host "Installing Codex plugin..."
-    & $codex "plugin" "add" "hunyuan-glb-generator@hunyuan-glb-generator-marketplace"
-    if ($LASTEXITCODE -ne 0) {
-      Write-Warning "Codex plugin install returned a non-zero exit code. Open Codex Plugins and install it from the Hunyuan GLB Generator marketplace if needed."
+    if ($marketplaceReady) {
+      Write-Host "Installing Codex plugin..."
+      & $codex "plugin" "add" "hunyuan-glb-generator@hunyuan-glb-generator-marketplace"
+      if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Codex plugin install returned a non-zero exit code. Open Codex Plugins and install it from the Hunyuan GLB Generator marketplace if needed."
+      }
     }
   } else {
     Write-Warning "Codex CLI was not found on PATH. The plugin was configured, but marketplace/plugin install was skipped."
