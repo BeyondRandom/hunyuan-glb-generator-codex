@@ -74,6 +74,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "git clone https://github
 Once installed, Codex can use these MCP tools:
 
 - `hunyuan_status`
+- `hunyuan_diagnose`
 - `hunyuan_start_api`
 - `hunyuan_stop_api`
 - `hunyuan_generate_from_image`
@@ -81,6 +82,8 @@ Once installed, Codex can use these MCP tools:
 - `hunyuan_batch_status`
 
 The bundled skill tells Codex when to use those tools, which settings are best for small GLBs, and how to run an agentic batch loop.
+
+For textured Hunyuan3D 2.0 batches, `backend: auto` selects `api_low_vram`, which launches a temporary API-compatible low-VRAM server using the same texture offload profile as the Hunyuan UI. Users can force `backend: api` on high-VRAM machines or set `profile` manually.
 
 ## Examples
 

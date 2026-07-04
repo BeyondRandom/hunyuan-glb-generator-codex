@@ -2,6 +2,8 @@
   "output_dir": "examples\\output-textured",
   "options": {
     "version": "2.0",
+    "backend": "auto",
+    "profile": "2",
     "texture": true,
     "reset": true,
     "seed": 1234,

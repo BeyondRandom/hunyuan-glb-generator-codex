@@ -56,10 +56,11 @@ These commands work without MCP:
 
 ```powershell
 python .\scripts\hy3d_asset_controller.py status
+python .\scripts\hy3d_asset_controller.py diagnose
 python .\scripts\hy3d_asset_controller.py start --version 2.0
-python .\scripts\hy3d_asset_controller.py start --version 2.0 --texture --reset
+python .\scripts\hy3d_asset_controller.py start --version 2.0 --texture --backend auto --profile 2 --reset
 python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name"
-python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name" --texture --reset
+python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name" --texture --backend auto --profile 2 --reset
 python .\scripts\hy3d_asset_controller.py enqueue --manifest "C:\path\batch.json"
 python .\scripts\hy3d_asset_controller.py batch-status --job-id "hy3d-..."
 ```
@@ -79,6 +80,8 @@ Raise those settings only when the model is too weak.
 For colored/textured low-poly GLBs, use `texture: true` and `reset: true` in the manifest, or add `--texture --reset` to CLI calls when changing an existing API from untextured mode. A good compact starting point is:
 
 - `texture: true`
+- `backend: auto`
+- `profile: 2`
 - `reset: true`
 - `octree_resolution: 64`
 - `num_inference_steps: 5`
@@ -88,6 +91,8 @@ For colored/textured low-poly GLBs, use `texture: true` and `reset: true` in the
 - `stop_api_on_item_error: true`
 
 Texture generation can take longer than shape-only generation. `request_timeout_sec` keeps a stuck API request from blocking the whole queue forever, and `stop_api_on_item_error` restarts the local API before the next queued asset.
+
+`backend: auto` uses `api_low_vram` for textured Hunyuan3D 2.0 jobs. This starts an API-compatible temporary server with the same low-VRAM texture offload profile used by the Hunyuan UI. Use `python .\scripts\hy3d_asset_controller.py diagnose` to show the recommended backend/profile for the current PC.
 
 ## Examples
 

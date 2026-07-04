@@ -60,7 +60,7 @@ Use Hunyuan GLB Generator to turn every PNG in C:\path\to\reference_queue into s
 For colored/textured output:
 
 ```text
-Use Hunyuan GLB Generator to turn every PNG in C:\path\to\reference_queue into textured low-poly GLBs in C:\path\to\generated_textured_glbs. Use texture on, reset the API into texture mode, face_count 8000, octree_resolution 64, num_inference_steps 5, guidance_scale 4.5, request_timeout_sec 900, stop_api_on_item_error true, and continue on error.
+Use Hunyuan GLB Generator to diagnose the local Hunyuan install, then turn every PNG in C:\path\to\reference_queue into textured low-poly GLBs in C:\path\to\generated_textured_glbs. Use texture on, backend auto, profile 2 unless diagnose recommends otherwise, reset the API into texture mode, face_count 8000, octree_resolution 64, num_inference_steps 5, guidance_scale 4.5, request_timeout_sec 900, stop_api_on_item_error true, and continue on error.
 ```
 
 ## Recommended Small-GLB Settings
@@ -87,6 +87,8 @@ Colored/textured low-poly output:
 ```json
 {
   "version": "2.0",
+  "backend": "auto",
+  "profile": "2",
   "texture": true,
   "reset": true,
   "seed": 1234,
@@ -102,3 +104,4 @@ Colored/textured low-poly output:
 
 Use `reset: true` when switching an already-running Hunyuan API from untextured to textured mode so the API restarts with `--enable_tex`.
 Use `request_timeout_sec` and `stop_api_on_item_error` for textured batches so one stalled item does not freeze the queue indefinitely.
+For textured Hunyuan3D 2.0, `backend: auto` selects the low-VRAM API shim that mirrors the UI's High Memory / Low VRAM profile. Use `backend: api` only on machines where the plain API texture path is known to work.

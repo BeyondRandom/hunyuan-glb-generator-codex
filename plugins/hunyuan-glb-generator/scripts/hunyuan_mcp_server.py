@@ -24,6 +24,7 @@ from hy3d_asset_controller import (  # noqa: E402
     ControllerError,
     batch_status,
     current_status,
+    diagnose,
     enqueue_batch,
     generate_from_image,
     start_api,
@@ -53,6 +54,8 @@ TOOLS: list[dict[str, Any]] = [
             "type": "object",
             "properties": {
                 "version": {"type": "string", "enum": ["2.0", "2.1"], "default": "2.0"},
+                "backend": {"type": "string", "enum": ["auto", "api", "api_low_vram"], "default": "auto"},
+                "profile": {"type": "string", "default": "2"},
                 "texture": {"type": "boolean", "default": False},
                 "reset": {"type": "boolean", "default": False},
                 "host": {"type": "string", "default": DEFAULT_HOST},
@@ -78,6 +81,8 @@ TOOLS: list[dict[str, Any]] = [
                 "asset_name": {"type": "string", "description": "Output GLB base filename without extension."},
                 "output_dir": {"type": "string", "description": "Destination folder. Defaults to the configured output folder or current project."},
                 "version": {"type": "string", "enum": ["2.0", "2.1"], "default": "2.0"},
+                "backend": {"type": "string", "enum": ["auto", "api", "api_low_vram"], "default": "auto"},
+                "profile": {"type": "string", "default": "2"},
                 "texture": {"type": "boolean", "default": False},
                 "seed": {"type": "integer", "default": 1234},
                 "octree_resolution": {"type": "integer", "default": 128},
@@ -113,6 +118,8 @@ TOOLS: list[dict[str, Any]] = [
                 },
                 "output_dir": {"type": "string", "description": "Destination folder. Defaults to the configured output folder or current project."},
                 "version": {"type": "string", "enum": ["2.0", "2.1"], "default": "2.0"},
+                "backend": {"type": "string", "enum": ["auto", "api", "api_low_vram"], "default": "auto"},
+                "profile": {"type": "string", "default": "2"},
                 "texture": {"type": "boolean", "default": False},
                 "seed": {"type": "integer", "default": 1234},
                 "octree_resolution": {"type": "integer", "default": 128},
@@ -137,6 +144,14 @@ TOOLS: list[dict[str, Any]] = [
             "properties": {
                 "job_id": {"type": "string"},
             },
+        },
+    },
+    {
+        "name": "hunyuan_diagnose",
+        "description": "Inspect the local Hunyuan install and recommend backend/version/profile settings for this PC.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {},
         },
     },
 ]
@@ -186,6 +201,8 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return text_result(
             start_api(
                 version=arguments.get("version", "2.0"),
+                backend=arguments.get("backend", "auto"),
+                profile=arguments.get("profile"),
                 texture=bool(arguments.get("texture", False)),
                 reset=bool(arguments.get("reset", False)),
                 host=arguments.get("host", DEFAULT_HOST),
@@ -202,6 +219,8 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
                 output_dir=Path(output_dir) if output_dir else None,
                 asset_name=arguments.get("asset_name"),
                 version=arguments.get("version", "2.0"),
+                backend=arguments.get("backend", "auto"),
+                profile=arguments.get("profile"),
                 texture=bool(arguments.get("texture", False)),
                 seed=int(arguments.get("seed", 1234)),
                 octree_resolution=int(arguments.get("octree_resolution", 128)),
@@ -221,6 +240,8 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
                 items=arguments.get("items") or [],
                 output_dir=Path(output_dir) if output_dir else None,
                 version=arguments.get("version", "2.0"),
+                backend=arguments.get("backend", "auto"),
+                profile=arguments.get("profile"),
                 texture=bool(arguments.get("texture", False)),
                 seed=int(arguments.get("seed", 1234)),
                 octree_resolution=int(arguments.get("octree_resolution", 128)),
@@ -237,6 +258,8 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         )
     if name == "hunyuan_batch_status":
         return text_result(batch_status(arguments.get("job_id")))
+    if name == "hunyuan_diagnose":
+        return text_result(diagnose())
     raise ControllerError(f"Unknown tool: {name}")
 
 

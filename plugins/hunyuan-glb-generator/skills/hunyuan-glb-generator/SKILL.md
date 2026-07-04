@@ -20,6 +20,8 @@ Use this skill when the user wants Codex to generate or automate GLB assets thro
 - Do not kill all Python processes. Only stop Hunyuan processes whose command line points inside the configured Hunyuan root.
 - Prompt-to-model is image-first: create or collect a reference image, save it locally, then call image-to-GLB generation.
 - Use texture generation only when the user asks for it or quality requires it. Texture startup is heavier and may need more VRAM.
+- Before textured generation on an unfamiliar machine, call `hunyuan_diagnose` or run `python .\scripts\hy3d_asset_controller.py diagnose` and use its recommended backend/profile.
+- For textured Hunyuan3D 2.0, prefer `backend: auto` so the controller selects the low-VRAM API shim that mirrors the Hunyuan UI's High Memory / Low VRAM profile.
 - For multiple assets, use the background batch queue. Do not run many GPU generations in parallel unless the user explicitly asks for a stress test.
 - Batch jobs return a `job_id` immediately. Poll status to collect finished GLB paths and errors.
 
@@ -29,6 +31,7 @@ If MCP tools are unavailable, use the controller directly from the plugin root:
 
 ```powershell
 python .\scripts\hy3d_asset_controller.py status
+python .\scripts\hy3d_asset_controller.py diagnose
 python .\scripts\hy3d_asset_controller.py start --version 2.0
 python .\scripts\hy3d_asset_controller.py generate --image "C:\path\reference.png" --name "asset_name"
 python .\scripts\hy3d_asset_controller.py enqueue --manifest "C:\path\batch.json"
@@ -46,6 +49,8 @@ Use this shape for queued generation:
   "output_dir": "C:\\path\\to\\generated-glbs",
   "options": {
     "version": "2.0",
+    "backend": "auto",
+    "profile": "2",
     "texture": false,
     "seed": 1234,
     "octree_resolution": 64,
@@ -68,13 +73,14 @@ Use this shape for queued generation:
 
 For smallest game-ready GLBs, start with `texture: false`, `octree_resolution: 64`, `num_inference_steps: 3`, `guidance_scale: 4.0`, and `face_count: 8000`. Increase only when the output is too weak.
 
-For colored/textured low-poly GLBs, use `texture: true`, `reset: true`, `octree_resolution: 64`, `num_inference_steps: 5`, `guidance_scale: 4.5`, `face_count: 8000`, `request_timeout_sec: 900`, and `stop_api_on_item_error: true`. Keep output in a separate review folder until the user approves swapping it into a game.
+For colored/textured low-poly GLBs, use `texture: true`, `backend: auto`, `profile: 2`, `reset: true`, `octree_resolution: 64`, `num_inference_steps: 5`, `guidance_scale: 4.5`, `face_count: 8000`, `request_timeout_sec: 900`, and `stop_api_on_item_error: true`. Keep output in a separate review folder until the user approves swapping it into a game.
 
 ## MCP Tools
 
 When the plugin is installed in a fresh Codex thread, the MCP server should expose:
 
 - `hunyuan_status`
+- `hunyuan_diagnose`
 - `hunyuan_start_api`
 - `hunyuan_stop_api`
 - `hunyuan_generate_from_image`
