@@ -20,6 +20,18 @@ Normal installs should write per-user config:
 python .\scripts\configure_plugin.py --hunyuan-root "C:\path\to\Hunyuan3D2_WinPortable"
 ```
 
+If Hunyuan is installed in a common Windows location, the configure script can auto-detect it:
+
+```powershell
+python .\scripts\configure_plugin.py
+```
+
+It checks for a portable root containing `python_standalone\python.exe` and `Hunyuan3D-2\api_server.py`. If none is found, install Hunyuan3D from the official project first:
+
+```text
+https://github.com/Tencent-Hunyuan/Hunyuan3D-2
+```
+
 Optional default output folder:
 
 ```powershell

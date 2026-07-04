@@ -9,8 +9,9 @@ Use this skill when the user wants Codex to generate or automate GLB assets thro
 
 ## Requirements
 
-- The plugin must be configured with `scripts/configure_plugin.py` or equivalent environment variables.
-- `HY3D_PORTABLE_ROOT` or `config.local.json` must point at a Hunyuan3D portable root that contains `python_standalone\python.exe` and `Hunyuan3D-2\api_server.py`.
+- The plugin must be configured with `scripts/configure_plugin.py`, equivalent environment variables, or an auto-discovered Hunyuan3D portable root.
+- `HY3D_PORTABLE_ROOT`, user config, plugin config, or auto-discovery must point at a Hunyuan3D portable root that contains `python_standalone\python.exe` and `Hunyuan3D-2\api_server.py`.
+- If Hunyuan is missing, ask the user for the root path or help them install Hunyuan3D from `https://github.com/Tencent-Hunyuan/Hunyuan3D-2`. Do not silently download large runtimes/model files without user approval.
 - The preferred backend is the Hunyuan3D API server. Do not use the Gradio/front-end UI unless the backend is unavailable and the user explicitly wants UI automation.
 
 ## Behavior
@@ -21,6 +22,7 @@ Use this skill when the user wants Codex to generate or automate GLB assets thro
 - Prompt-to-model is image-first: create or collect a reference image, save it locally, then call image-to-GLB generation.
 - Use texture generation only when the user asks for it or quality requires it. Texture startup is heavier and may need more VRAM.
 - Before textured generation on an unfamiliar machine, call `hunyuan_diagnose` or run `python .\scripts\hy3d_asset_controller.py diagnose` and use its recommended backend/profile.
+- If `hunyuan_diagnose` reports `root_source: not_found` or `setup.ready: false`, pause generation and resolve installation/configuration first.
 - For textured Hunyuan3D 2.0, prefer `backend: auto` so the controller selects the low-VRAM API shim that mirrors the Hunyuan UI's High Memory / Low VRAM profile.
 - For multiple assets, use the background batch queue. Do not run many GPU generations in parallel unless the user explicitly asks for a stress test.
 - Batch jobs return a `job_id` immediately. Poll status to collect finished GLB paths and errors.

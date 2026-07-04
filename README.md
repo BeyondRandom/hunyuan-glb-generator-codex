@@ -38,6 +38,10 @@ Textured batches can set `request_timeout_sec` and `stop_api_on_item_error` so o
   - `python_standalone\python.exe`
   - `Hunyuan3D-2\api_server.py`
 
+If Hunyuan3D is not installed yet, install it from the official project first:
+[Tencent-Hunyuan/Hunyuan3D-2](https://github.com/Tencent-Hunyuan/Hunyuan3D-2).
+This plugin does not redistribute Hunyuan3D, model weights, or runtime files.
+
 ## Quick Install
 
 Clone the repository, then run:
@@ -47,6 +51,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -Gui
 ```
 
 The GUI installer asks for the Hunyuan3D portable root, writes per-user config, registers this folder as a Codex marketplace, and installs the plugin when the Codex CLI is available.
+Before prompting, the installer checks common folders such as `C:\AI`, `D:\AI`, the user's `AI`, `Downloads`, and `Desktop` folders for a valid Hunyuan3D portable root.
 
 Noninteractive install:
 
@@ -54,6 +59,14 @@ Noninteractive install:
 powershell -ExecutionPolicy Bypass -File .\install.ps1 `
   -HunyuanRoot "C:\path\to\Hunyuan3D2_WinPortable"
 ```
+
+If Hunyuan is already in a common location, agents can try:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The installer will auto-detect a root that contains `python_standalone\python.exe` and `Hunyuan3D-2\api_server.py`; otherwise it prints the official Hunyuan setup URL and asks for `-HunyuanRoot` or `-Gui`.
 
 After install, start a new Codex thread and ask:
 
@@ -82,6 +95,7 @@ Once installed, Codex can use these MCP tools:
 - `hunyuan_batch_status`
 
 The bundled skill tells Codex when to use those tools, which settings are best for small GLBs, and how to run an agentic batch loop.
+Agents should call `hunyuan_diagnose` first on unfamiliar machines. It reports whether Hunyuan was configured, auto-discovered, or missing, lists valid discovered roots, recommends texture backend/profile settings, and includes setup guidance when Hunyuan is not found.
 
 For textured Hunyuan3D 2.0 batches, `backend: auto` selects `api_low_vram`, which launches a temporary API-compatible low-VRAM server using the same texture offload profile as the Hunyuan UI. Users can force `backend: api` on high-VRAM machines or set `profile` manually.
 

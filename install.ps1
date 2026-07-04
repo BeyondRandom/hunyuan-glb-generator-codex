@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$HunyuanRepoUrl = "https://github.com/Tencent-Hunyuan/Hunyuan3D-2"
 
 function Select-Folder {
   param([string]$Description)
@@ -27,7 +28,7 @@ function Assert-HunyuanRoot {
   param([string]$PathValue)
 
   if (-not $PathValue) {
-    throw "Pass -HunyuanRoot or run with -Gui."
+    throw "Pass -HunyuanRoot or run with -Gui. If Hunyuan3D is not installed yet, start here: $HunyuanRepoUrl"
   }
   $resolved = (Resolve-Path -LiteralPath $PathValue).Path
   $python = Join-Path $resolved "python_standalone\python.exe"
@@ -39,6 +40,52 @@ function Assert-HunyuanRoot {
     throw "Hunyuan3D-2 API server was not found at: $api"
   }
   return $resolved
+}
+
+function Test-HunyuanRoot {
+  param([string]$PathValue)
+
+  if (-not $PathValue -or -not (Test-Path -LiteralPath $PathValue)) {
+    return $false
+  }
+  $python = Join-Path $PathValue "python_standalone\python.exe"
+  $api = Join-Path $PathValue "Hunyuan3D-2\api_server.py"
+  return ((Test-Path -LiteralPath $python) -and (Test-Path -LiteralPath $api))
+}
+
+function Find-HunyuanRoot {
+  $homeDir = [Environment]::GetFolderPath("UserProfile")
+  $desktopDir = [Environment]::GetFolderPath("Desktop")
+  $candidateRoots = @(
+    "C:\AI\HY3D2\Hunyuan3D2_WinPortable_cu129\Hunyuan3D2_WinPortable",
+    "C:\AI\HY3D2\Hunyuan3D2_WinPortable",
+    "C:\AI\Hunyuan3D2_WinPortable",
+    "C:\AI\Hunyuan3D-2",
+    (Join-Path $homeDir "AI\Hunyuan3D2_WinPortable"),
+    (Join-Path $homeDir "Downloads\Hunyuan3D2_WinPortable"),
+    (Join-Path $desktopDir "Hunyuan3D2_WinPortable")
+  )
+
+  foreach ($candidate in $candidateRoots) {
+    if (Test-HunyuanRoot $candidate) {
+      return (Resolve-Path -LiteralPath $candidate).Path
+    }
+  }
+
+  $searchRoots = @("C:\AI", "D:\AI", (Join-Path $homeDir "AI"), (Join-Path $homeDir "Downloads"), $desktopDir)
+  foreach ($root in $searchRoots) {
+    if (-not (Test-Path -LiteralPath $root)) {
+      continue
+    }
+    $matches = Get-ChildItem -LiteralPath $root -Directory -Recurse -Depth 3 -ErrorAction SilentlyContinue |
+      Where-Object { $_.Name -match "Hunyuan|HY3D" }
+    foreach ($match in $matches) {
+      if (Test-HunyuanRoot $match.FullName) {
+        return $match.FullName
+      }
+    }
+  }
+  return $null
 }
 
 function Get-PythonCommand {
@@ -80,6 +127,14 @@ $configureScript = Join-Path $pluginRoot "scripts\configure_plugin.py"
 
 if (-not (Test-Path -LiteralPath $configureScript)) {
   throw "Could not find plugin configure script at: $configureScript"
+}
+
+if (-not $HunyuanRoot) {
+  $detectedRoot = Find-HunyuanRoot
+  if ($detectedRoot) {
+    $HunyuanRoot = $detectedRoot
+    Write-Host "Auto-detected Hunyuan3D portable root: $HunyuanRoot"
+  }
 }
 
 if ($Gui -and -not $HunyuanRoot) {

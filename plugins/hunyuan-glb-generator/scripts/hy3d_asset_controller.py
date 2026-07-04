@@ -31,6 +31,7 @@ STATE_DIR = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "Codex" / "
 USER_CONFIG_PATH = STATE_DIR / "config.json"
 PLUGIN_LOCAL_CONFIG_PATH = PLUGIN_ROOT / "config.local.json"
 CONFIG_PATH = Path(os.environ.get("HUNYUAN_GLB_CONFIG", USER_CONFIG_PATH)).expanduser()
+HUNYUAN_REPO_URL = "https://github.com/Tencent-Hunyuan/Hunyuan3D-2"
 
 
 def load_local_config() -> dict[str, Any]:
@@ -67,10 +68,80 @@ def configured_int(env_name: str, config_key: str, default: int) -> int:
         return default
 
 
+def looks_like_hunyuan_root(path: Path) -> bool:
+    return (
+        (path / "python_standalone" / "python.exe").exists()
+        and (path / "Hunyuan3D-2" / "api_server.py").exists()
+    )
+
+
+def candidate_hunyuan_paths() -> list[Path]:
+    home = Path.home()
+    candidates = [
+        Path("C:/AI/HY3D2/Hunyuan3D2_WinPortable_cu129/Hunyuan3D2_WinPortable"),
+        Path("C:/AI/HY3D2/Hunyuan3D2_WinPortable"),
+        Path("C:/AI/Hunyuan3D2_WinPortable"),
+        Path("C:/AI/Hunyuan3D-2"),
+        home / "AI" / "Hunyuan3D2_WinPortable",
+        home / "Downloads" / "Hunyuan3D2_WinPortable",
+        home / "Desktop" / "Hunyuan3D2_WinPortable",
+    ]
+    search_roots = [Path("C:/AI"), Path("D:/AI"), home / "AI", home / "Downloads", home / "Desktop"]
+    seen = {str(path).lower() for path in candidates}
+
+    def add(path: Path) -> None:
+        key = str(path).lower()
+        if key not in seen:
+            candidates.append(path)
+            seen.add(key)
+
+    def walk_limited(base: Path, depth: int) -> None:
+        if depth < 0 or not base.exists() or not base.is_dir():
+            return
+        try:
+            children = list(base.iterdir())
+        except OSError:
+            return
+        for child in children:
+            if not child.is_dir():
+                continue
+            lowered = child.name.lower()
+            if "hunyuan" in lowered or "hy3d" in lowered:
+                add(child)
+                walk_limited(child, depth - 1)
+
+    for root in search_roots:
+        walk_limited(root, 3)
+    return candidates
+
+
+def find_hunyuan_roots() -> list[Path]:
+    roots: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidate_hunyuan_paths():
+        try:
+            resolved = candidate.expanduser().resolve()
+        except OSError:
+            continue
+        key = str(resolved).lower()
+        if key in seen or not looks_like_hunyuan_root(resolved):
+            continue
+        roots.append(resolved)
+        seen.add(key)
+    return roots
+
+
+def configured_hunyuan_root() -> str | None:
+    return configured_text("HY3D_PORTABLE_ROOT", "hunyuan_root")
+
+
 def discover_hunyuan_root() -> str | None:
-    configured = configured_text("HY3D_PORTABLE_ROOT", "hunyuan_root")
+    configured = configured_hunyuan_root()
     if configured:
         return configured
+    roots = find_hunyuan_roots()
+    if roots:
+        return str(roots[0])
     return None
 
 
@@ -901,8 +972,13 @@ def diagnose() -> dict[str, Any]:
     api20_config = config.get("API-Hunyuan3D-2", {})
     recommended_backend = "api_low_vram" if has_hy3d20 else "api"
     recommended_profile = str(hy3d20_config.get("--profile", "2"))
+    configured_root = configured_hunyuan_root()
+    discovered_roots = [str(path) for path in find_hunyuan_roots()]
+    root_ready = bool(HUNYUAN_ROOT_TEXT and HUNYUAN_ROOT.exists() and has_hy3d20)
     return {
         "hunyuan_root": str(HUNYUAN_ROOT) if HUNYUAN_ROOT_TEXT else None,
+        "root_source": "configured" if configured_root else ("auto_discovered" if HUNYUAN_ROOT_TEXT else "not_found"),
+        "discovered_roots": discovered_roots,
         "available_versions": {
             "2.0": has_hy3d20,
             "2.1": has_hy3d21,
@@ -922,6 +998,19 @@ def diagnose() -> dict[str, Any]:
         "manual_options": {
             "backend": list(BACKEND_CHOICES),
             "profile": ["1", "2", "3", "4", "5"],
+        },
+        "setup": {
+            "ready": root_ready,
+            "official_hunyuan_repo": HUNYUAN_REPO_URL,
+            "expected_root_files": [
+                "python_standalone\\python.exe",
+                "Hunyuan3D-2\\api_server.py",
+            ],
+            "agent_next_step": (
+                "Use the configured or auto-discovered Hunyuan root."
+                if root_ready
+                else "Ask the user for their Hunyuan3D portable root, or help them install Hunyuan3D from the official repo before running generation."
+            ),
         },
     }
 
